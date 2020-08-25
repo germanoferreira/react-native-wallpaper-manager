@@ -93,7 +93,26 @@ public class WallPaperManager extends ReactContextBaseJavaModule {
         final SimpleTarget<byte[]> simpleTarget = this.getSimpleTarget(source,screen);
         mCurrentActivity = getCurrentActivity();
         if(mCurrentActivity==null){
-            sendMessage("error","CurrentActivity is null",source);
+			try{
+				mUri = Uri.parse(source);
+				Bitmap mBitmap = Glide.with(mApplicationContext)
+					.load(mUri)
+					.asBitmap()
+					.centerCrop()
+					.into(1080, 1920)
+					.get();
+				if(screen.equals("lock")){
+					wallpaperManager.setBitmap(mBitmap, null, true, WallpaperManager.FLAG_LOCK);
+				} else if(screen.equals("home")){
+					wallpaperManager.setBitmap(mBitmap, null, true, WallpaperManager.FLAG_SYSTEM);
+				} else if(screen.equals("both")){
+					wallpaperManager.setBitmap(mBitmap, null, true, WallpaperManager.FLAG_LOCK | WallpaperManager.FLAG_SYSTEM);
+				}
+				sendMessage("success","Set Wallpaper Success",source);
+			}catch (Exception e) {
+				sendMessage("error","Exception with CurrentActivity null" + e.getMessage(),source);
+			}
+			return;
         }
 
         //handle base64
